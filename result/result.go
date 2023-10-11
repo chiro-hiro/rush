@@ -1,5 +1,7 @@
 package result
 
+import "errors"
+
 type Result[T any] struct {
 	Ok  T
 	Err error
@@ -14,6 +16,10 @@ func Ok[T any](ok T) Result[T] {
 
 func Err[T any](err error) Result[T] {
 	return Result[T]{Err: err}
+}
+
+func ErrStr[T any](err string) Result[T] {
+	return Result[T]{Err: errors.New(err)}
 }
 
 func From[T any](result T, err error) Result[T] {

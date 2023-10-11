@@ -23,14 +23,43 @@ func (o Option[T]) IsNone() bool {
 	return o.val == nil || len(o.val) == 0
 }
 
-func (o Option[T]) IsSome() T {
+func (o Option[T]) IsSome() bool {
+	return !o.IsNone()
+}
+
+func (o Option[T]) Unwrap() T {
 	if o.IsNone() {
-		panic("Can not get value of None")
+		panic("unwrap a none option")
 	}
 	return o.val[0]
 }
 
-func (o Option[T]) Match(some func(val T) any, none func() any) any {
+func (o Option[T]) UnwrapOr(def T) T {
+	if o.IsNone() {
+		return def
+	}
+	return o.val[0]
+}
+
+func (o Option[T]) UnwrapOrElse(fn func() T) T {
+	if o.IsNone() {
+		return fn()
+	}
+	return o.val[0]
+}
+
+func (o Option[T]) Expect(msg string) T {
+	if o.IsNone() {
+		panic(msg)
+	}
+	return o.val[0]
+}
+
+type SomeResolve[T any] func(val T) interface{}
+
+type NoneResolve[T any] func() interface{}
+
+func (o Option[T]) Match(some SomeResolve[T], none NoneResolve[T]) interface{} {
 	if o.IsNone() {
 		return none()
 	} else {
